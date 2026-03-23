@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { fetchApi } from '@/lib/api'
 
 // ─── メニュー定義（ユーザー目線のカテゴリ） ───
 
@@ -30,6 +31,15 @@ const menuSections = [
       { href: '/affiliates', label: '流入経路', icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
       { href: '/conversions', label: 'CV計測', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
       { href: '/scoring', label: 'スコアリング', icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z' },
+      { href: '/question-ranking', label: '悩みランキング', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
+      { href: '/revenue', label: '収益ダッシュボード', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+      { href: '/churn', label: 'ファン離脱予測', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+    ],
+  },
+  {
+    label: 'AI Bot管理',
+    items: [
+      { href: '/unanswered', label: '未回答質問ボックス', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
     ],
   },
   {
@@ -62,8 +72,15 @@ function NavIcon({ d }: { d: string }) {
 export default function Sidebar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const [unansweredCount, setUnansweredCount] = useState(0)
 
   useEffect(() => { setIsOpen(false) }, [pathname])
+
+  useEffect(() => {
+    fetchApi<{ success: boolean; data: { total: number } }>('/api/unanswered?limit=1')
+      .then(res => { if (res.success) setUnansweredCount(res.data.total) })
+      .catch(() => {})
+  }, [])
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -112,7 +129,12 @@ export default function Sidebar() {
                   style={active ? { backgroundColor: isDanger ? '#EF4444' : '#06C755' } : {}}
                 >
                   <NavIcon d={item.icon} />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.href === '/unanswered' && unansweredCount > 0 && (
+                    <span className="ml-auto text-xs font-semibold px-1.5 py-0.5 rounded-full bg-red-500 text-white leading-none">
+                      {unansweredCount}
+                    </span>
+                  )}
                 </Link>
               )
             })}
