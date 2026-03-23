@@ -12,7 +12,7 @@
     "db:migrate": "wrangler d1 execute line-crm --file=packages/db/schema.sql",
     "db:migrate:local": "wrangler d1 execute line-crm --file=packages/db/schema.sql --local"
   },
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=20"
   },
