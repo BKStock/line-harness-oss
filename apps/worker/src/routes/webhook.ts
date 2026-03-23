@@ -240,6 +240,22 @@ async function handleEvent(
       }
     }
 
+    // マッチしなかった場合 → 未回答質問として登録
+    if (!matched) {
+      try {
+        const uqId = crypto.randomUUID().replace(/-/g, '');
+        await db
+          .prepare(
+            `INSERT INTO unanswered_questions (id, friend_id, message, status, created_at)
+             VALUES (?, ?, ?, 'pending', ?)`,
+          )
+          .bind(uqId, friend.id, incomingText, now)
+          .run();
+      } catch (err) {
+        console.error('Failed to register unanswered question:', err);
+      }
+    }
+
     // イベントバス発火: message_received
     await fireEvent(db, 'message_received', {
       friendId: friend.id,

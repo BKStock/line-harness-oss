@@ -31,6 +31,9 @@ import { automations } from './routes/automations.js';
 import { richMenus } from './routes/rich-menus.js';
 import { trackedLinks } from './routes/tracked-links.js';
 import { forms } from './routes/forms.js';
+import { unanswered } from './routes/unanswered.js';
+import { churn } from './routes/churn.js';
+import { analytics } from './routes/analytics.js';
 
 export type Env = {
   Bindings: {
@@ -80,6 +83,9 @@ app.route('/', automations);
 app.route('/', richMenus);
 app.route('/', trackedLinks);
 app.route('/', forms);
+app.route('/', unanswered);
+app.route('/', churn);
+app.route('/api/analytics', analytics);
 
 // 404 fallback
 app.notFound((c) => c.json({ success: false, error: 'Not found' }, 404));
