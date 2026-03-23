@@ -11,5 +11,9 @@ binding = "DB"
 database_name = "line-crm"
 database_id = "31021469-0729-4045-92a8-9f17f33737b2"
 
+[vars]
+AI_AUTO_REPLY_ENABLED = "true"
+AI_MODEL = "claude-sonnet-4-6"
+
 [triggers]
 crons = ["*/5 * * * *"]

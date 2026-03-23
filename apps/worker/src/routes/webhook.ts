@@ -47,7 +47,7 @@ webhook.post('/webhook', async (c) => {
   const processingPromise = (async () => {
     for (const event of body.events) {
       try {
-        await handleEvent(db, lineClient, event, lineAccessToken);
+        await handleEvent(db, lineClient, event, lineAccessToken, c.env.ANTHROPIC_API_KEY, c.env.AI_AUTO_REPLY_ENABLED);
       } catch (err) {
         console.error('Error handling webhook event:', err);
       }
@@ -59,11 +59,27 @@ webhook.post('/webhook', async (c) => {
   return c.json({ status: 'ok' }, 200);
 });
 
+const AI_SYSTEM_PROMPT = `あなたは「KK」というモメンタム投資の専門家のLINEアシスタントです。
+
+【あなたの役割】
+- モメンタム投資法に関する質問に丁寧に答える
+- 投資初心者にも分かりやすく説明する
+- KKの人柄（フレンドリー・誠実・実績重視）を体現する
+
+【回答ルール】
+- 100文字以内で簡潔に答える
+- 具体的な銘柄名・投資アドバイスは「詳細は講座でお伝えします」と言う
+- 医療・法律・税務の相談は専門家への相談を促す
+- 質問が投資と無関係な場合は「投資に関するご質問をどうぞ」と返す
+- 返信の最後に必ず絵文字を1つつける`;
+
 async function handleEvent(
   db: D1Database,
   lineClient: LineClient,
   event: WebhookEvent,
   lineAccessToken: string,
+  anthropicKey?: string,
+  aiEnabledStr?: string,
 ): Promise<void> {
   if (event.type === 'follow') {
     const userId =
@@ -240,7 +256,49 @@ async function handleEvent(
       }
     }
 
-    // マッチしなかった場合 → 未回答質問として登録
+    // マッチしなかった場合 → Claude AI 自動応答を試みる
+    const aiEnabled = aiEnabledStr === 'true';
+    if (!matched && aiEnabled && anthropicKey) {
+      try {
+        const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-3-5',
+            max_tokens: 200,
+            system: AI_SYSTEM_PROMPT,
+            messages: [{ role: 'user', content: incomingText }],
+          }),
+        });
+
+        const aiData = await aiResponse.json() as { content: [{ text: string }] };
+        const aiText = aiData.content?.[0]?.text;
+
+        if (aiText) {
+          await lineClient.replyMessage(event.replyToken, [{ type: 'text', text: aiText }]);
+
+          // AI応答ログ
+          const aiLogId = crypto.randomUUID();
+          await db
+            .prepare(
+              `INSERT INTO messages_log (id, friend_id, direction, message_type, content, broadcast_id, scenario_step_id, created_at)
+               VALUES (?, ?, 'outgoing', 'text', ?, NULL, NULL, ?)`,
+            )
+            .bind(aiLogId, friend.id, aiText, jstNow())
+            .run();
+
+          matched = true;
+        }
+      } catch (err) {
+        console.error('AI auto-reply error:', err);
+      }
+    }
+
+    // まだマッチしなかった場合 → 未回答質問として登録
     if (!matched) {
       try {
         const uqId = crypto.randomUUID().replace(/-/g, '');

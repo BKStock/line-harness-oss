@@ -45,6 +45,8 @@ export type Env = {
     LINE_CHANNEL_ID: string;
     LINE_LOGIN_CHANNEL_ID: string;
     LINE_LOGIN_CHANNEL_SECRET: string;
+    ANTHROPIC_API_KEY?: string;
+    AI_AUTO_REPLY_ENABLED?: string;
   };
 };
 
