@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import type { Scenario, ScenarioTriggerType } from '@line-crm/shared'
+import type { Scenario, ScenarioTriggerType } from '@/lib/shared'
 import { api } from '@/lib/api'
 import Header from '@/components/layout/header'
 import ScenarioList from '@/components/scenarios/scenario-list'

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 import Link from 'next/link'
-import type { Scenario, ScenarioStep, ScenarioTriggerType, MessageType } from '@line-crm/shared'
+import type { Scenario, ScenarioStep, ScenarioTriggerType, MessageType } from '@/lib/shared'
 import { api } from '@/lib/api'
 import Header from '@/components/layout/header'
 

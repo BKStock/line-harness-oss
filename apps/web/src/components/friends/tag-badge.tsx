@@ -1,4 +1,4 @@
-import type { Tag } from '@line-crm/shared'
+import type { Tag } from '@/lib/shared'
 
 interface TagBadgeProps {
   tag: Tag

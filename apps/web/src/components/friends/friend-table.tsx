@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Tag } from '@line-crm/shared'
+import type { Tag } from '@/lib/shared'
 import type { FriendWithTags } from '@/lib/api'
 import { api } from '@/lib/api'
 import TagBadge from './tag-badge'

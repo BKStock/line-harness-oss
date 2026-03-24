@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Scenario } from '@line-crm/shared'
+import type { Scenario } from '@/lib/shared'
 
 type ScenarioWithCount = Scenario & { stepCount?: number }
 

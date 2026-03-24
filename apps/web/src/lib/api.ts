@@ -22,9 +22,9 @@ import type {
   Notification,
   AccountHealthLog,
   AccountMigration,
-} from '@line-crm/shared'
+} from '@/lib/shared'
 
-import type { Broadcast } from '@line-crm/shared'
+import type { Broadcast } from '@/lib/shared'
 
 /** Broadcast type from API (now camelCase after worker serialization) */
 export type ApiBroadcast = Broadcast

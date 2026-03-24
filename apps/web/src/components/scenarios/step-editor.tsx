@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { ScenarioStep, MessageType } from '@line-crm/shared'
+import type { ScenarioStep, MessageType } from '@/lib/shared'
 
 interface StepEditorProps {
   step?: ScenarioStep

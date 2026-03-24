@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Tag } from '@line-crm/shared'
+import type { Tag } from '@/lib/shared'
 import { api, type ApiBroadcast } from '@/lib/api'
 
 interface BroadcastFormProps {
